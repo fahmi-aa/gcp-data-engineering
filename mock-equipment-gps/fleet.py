@@ -1,7 +1,7 @@
 import datetime as dt
 from typing import List
 from connector import Connector
-from payload import Payload
+from dto import Payload
 from vehicle import Vehicle
 
 class Fleet:

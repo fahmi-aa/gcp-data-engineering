@@ -1,5 +1,5 @@
 import math
-from point import Point
+from dto import Point
 import random
 
 class Vehicle():

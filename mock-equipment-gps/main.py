@@ -1,8 +1,8 @@
 from typing import List
-from point import Point
+from dto import Point
 from vehicle import Vehicle
 from fleet import Fleet
-from pubsub_connector import PubSubConnector
+from connector import PubSubConnector
 
 vehicles: List[Vehicle] = []
 
