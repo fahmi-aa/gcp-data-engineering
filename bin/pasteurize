@@ -1,4 +1,4 @@
-#!/Users/fahmi.abdulaziz/Documents/GitHub/gcp-data-engineering/bin/python3.9
+#!/Users/fahmi.abdulaziz/PycharmProjects/gcp-data-engineering/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'future==0.18.2','console_scripts','pasteurize'
 import re
 import sys

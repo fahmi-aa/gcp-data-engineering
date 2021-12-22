@@ -1,5 +1,5 @@
-python3 mock-equipment-gps/main.py \
-    --equipment_num 10 \
+python3 main.py \
+    --equipment_num 1 \
     --interval 15 \
     --project de-porto \
     --topic_id equipment-gps
