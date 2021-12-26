@@ -4,6 +4,7 @@ from connector import Connector
 from dto import Payload
 from vehicle import Vehicle
 
+
 class Fleet:
     vehicles: List[Vehicle]
     connector: Connector
@@ -17,10 +18,11 @@ class Fleet:
 
     def send_all(self):
         for vehicle in self.vehicles:
+            time, location = vehicle.get_new_data()
             payload = Payload(
-                dt.datetime.now(),
+                time,
                 vehicle.id,
                 vehicle.type,
-                vehicle.get_new_location()
+                location
             )
             self.connector.send(payload)
