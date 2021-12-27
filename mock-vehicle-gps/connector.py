@@ -21,7 +21,7 @@ class PubSubConnector(Connector):
         self.topic = self.client.topic_path(project_id, topic_id)
 
     def send(self, payload: Payload) -> None:
-        payload = json.dumps(payload.toJson()).encode("utf-8")
+        payload = json.dumps(payload.to_json()).encode("utf-8")
         future = self.client.publish(self.topic, payload)
 
         future.result(timeout=10)

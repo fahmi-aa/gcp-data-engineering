@@ -21,7 +21,7 @@ class Payload:
     id: int
     location: Point
 
-    def toJson(self):
+    def to_json(self):
         return {
             "timestamp": int(self.timestamp.timestamp()),
             "id": self.id,
