@@ -19,14 +19,12 @@ class Point:
 class Payload:
     timestamp: dt.datetime
     id: int
-    type: str
     location: Point
 
     def toJson(self):
         return {
             "timestamp": int(self.timestamp.timestamp()),
             "id": self.id,
-            "type": self.type,
             "x": self.location.x,
             "y": self.location.y
         }

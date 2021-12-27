@@ -22,7 +22,6 @@ class Fleet:
             payload = Payload(
                 time,
                 vehicle.id,
-                vehicle.type,
                 location
             )
             self.connector.send(payload)
