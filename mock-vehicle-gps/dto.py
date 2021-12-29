@@ -14,7 +14,8 @@ class Point:
         )
 
     def to_latlon(self):
-        return utm.to_latlon(self.x, self.y, 48, "M")
+        x, y = utm.to_latlon(self.x, self.y, 48, "M")
+        return Point(x, y)
 
     def __repr__(self) -> str:
         return f"Point(x={self.x}, y={self.y})"
