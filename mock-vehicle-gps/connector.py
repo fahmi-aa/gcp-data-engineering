@@ -26,6 +26,7 @@ class PubSubConnector(Connector):
 
         future.result(timeout=10)
 
+
 class TestConnector(Connector):
     def __init__(self) -> None:
         pass
