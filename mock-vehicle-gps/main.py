@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--equipment_num",
         type=int,
-        default=10,
+        default=1,
         help="Number of equipments that has gps"
     )
     parser.add_argument(
@@ -37,13 +37,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--project",
         type=str,
-        default="",
+        default="de-porto",
         help="Project ID"
     )
     parser.add_argument(
         "--topic_id",
         type=str,
-        default="",
+        default="equipment-gps",
         help="Pubsub topic ID"
     )
     args, _ = parser.parse_known_args()
