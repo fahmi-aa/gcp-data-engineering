@@ -14,9 +14,12 @@ class Vehicle:
     def __init__(self, vehicle_id: int, vehicle_type: str, init_point: Point, speed_rate: float) -> None:
         self.id = vehicle_id
         self.type = vehicle_type
-        self.location = init_point
+        self.location = init_point + self.__mid_point()
         self.current_orientation = random.random() * math.pi * 2 - math.pi
         self.speed_rate = speed_rate
+
+    def __mid_point(self):
+        return Point(756892, 9288051)
 
     def get_new_data(self) -> [datetime, Point]:
         delay = random.randint(0, 30)
@@ -31,7 +34,7 @@ class Vehicle:
         )
 
         self.location += displacement_point
-        return self.location
+        return self.location.to_latlon()
 
     def _get_turn_radiant(self) -> float:
         TURN_RANGE = 45
