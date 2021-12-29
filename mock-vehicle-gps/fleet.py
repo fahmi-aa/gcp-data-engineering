@@ -24,4 +24,4 @@ class Fleet:
                 vehicle.id,
                 location
             )
-            self.connector.send(payload.to_json())
+            self.connector.send(payload)
