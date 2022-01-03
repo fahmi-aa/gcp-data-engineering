@@ -4,39 +4,51 @@ from apache_beam.transforms import window
 from apache_beam.transforms.periodicsequence import PeriodicImpulse
 import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
+import logging as log
 
 def debug(payload):
-    print(payload)
+    log.info(payload)
     return payload
 
 def payload_epoch_to_utc(payload):
-    # import datetime as dt
     payload["timestamp"] = dt.datetime.utcfromtimestamp(payload["timestamp"]).isoformat()
+    return payload
+
+def to_wkt_point(payload):
+    payload["location"] = f'POINT({payload["y"]} {payload["y"]}'
+    del payload["x"]
+    del payload["y"]
+
     return payload
 
 def enrich_payload(payload, equipments):
     id = payload["id"]
+    log.info(equipments)
     for equipment in equipments:
-        print(equipment)
+        log.info(equipment)
         if id == equipment["id"]:
             payload["type"] = equipment["type"]
             payload["brand"] = equipment["brand"]
             payload["year"] = equipment["year"]
 
+            break
+
+    log.info(payload)
     return payload
 
 
-bq_table = "de-porto:de_porto.gps_pubsub"
-options = PipelineOptions(streaming=True, save_main_session=True)
+bq_table = "de-porto:de_porto.iot_log"
+options = PipelineOptions(streaming=True, save_main_session=True, worker_machine_type="n1-standard-1")
 
 p = beam.Pipeline(options=options)
 
 side_pipeline = (
     p
-    | "periodic" >> PeriodicImpulse(0, 999999999999, 30, True)
-    | "map to read request" >> beam.Map(lambda x: beam.io.ReadFromBigQuery(table=bq_table))
-    # | "debug" >> beam.Map(debug)
+    | "periodic" >> PeriodicImpulse(fire_interval=3600, apply_windowing=True)
+    | "map to read request" >>
+        beam.Map(lambda x:beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
     | beam.io.ReadAllFromBigQuery()
+    # | "debug" >> beam.Map(debug)
 )
 # python3.7 pubsub-to-bq.py \
 # --runner DataflowRunner \
@@ -50,11 +62,15 @@ pipeline = (
     p
     | "read" >> beam.io.ReadFromPubSub(topic="projects/de-porto/topics/equipment-gps")
     | "bytes to dict" >> beam.Map(lambda x: json.loads(x.decode("utf-8")))
-    # | "timestamp" >> beam.Map(lambda src: window.TimestampedValue(src, src["timestamp"]))
-    | "windowing" >> beam.WindowInto(window.FixedWindows(30))
+    | "To wkt point" >> beam.Map(to_wkt_point)
     | "To BQ Row" >> beam.Map(payload_epoch_to_utc)
     | "debug1" >> beam.Map(debug)
-    | "enrich data" >> beam.Map(enrich_payload, equipments=beam.pvalue.AsDict(side_pipeline))
+    | "timestamp" >> beam.Map(lambda src: window.TimestampedValue(
+        src,
+        dt.datetime.fromisoformat(src["timestamp"]).timestamp()
+    ))
+    | "windowing" >> beam.WindowInto(window.FixedWindows(30))
+    | "enrich data" >> beam.Map(enrich_payload, equipments=beam.pvalue.AsIter(side_pipeline))
     | "store" >> beam.io.WriteToBigQuery(bq_table)
 )
 

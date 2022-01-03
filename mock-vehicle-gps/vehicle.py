@@ -12,17 +12,15 @@ class Vehicle:
     speed_rate: float
 
     def __init__(self, vehicle_id: int, vehicle_type: str, init_point: Point, speed_rate: float) -> None:
+        MID_POINT = Point(756892, 9288051)
         self.id = vehicle_id
         self.type = vehicle_type
-        self.location = init_point + self.__mid_point()
+        self.location = init_point + MID_POINT
         self.current_orientation = random.random() * math.pi * 2 - math.pi
         self.speed_rate = speed_rate
 
-    def __mid_point(self):
-        return Point(756892, 9288051)
-
     def get_new_data(self) -> [datetime, Point]:
-        delay = random.randint(0, 30)
+        delay = random.randint(0, 15)
         return datetime.now() - timedelta(seconds=delay), self._get_new_location()
 
     def _get_new_location(self) -> Point:
