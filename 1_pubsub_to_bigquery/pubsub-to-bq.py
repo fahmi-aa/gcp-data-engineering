@@ -3,7 +3,7 @@ import apache_beam as beam
 from apache_beam.transforms import window
 from apache_beam.transforms.periodicsequence import PeriodicImpulse
 import datetime as dt
-from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.options.pipeline_options import PipelineOptions, GoogleCloudOptions
 import logging as log
 
 def debug(payload):
@@ -34,11 +34,12 @@ def enrich_payload(payload, equipments):
             break
 
     log.info(payload)
-    return payload
+    yield payload
 
 
 bq_table = "de-porto:de_porto.iot_log"
-options = PipelineOptions(streaming=True, save_main_session=True, worker_machine_type="n1-standard-1")
+# options = PipelineOptions(streaming=True, save_main_session=True, worker_machine_type="n1-standard-1")
+options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name="iot")
 
 p = beam.Pipeline(options=options)
 
@@ -48,7 +49,6 @@ side_pipeline = (
     | "map to read request" >>
         beam.Map(lambda x:beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
     | beam.io.ReadAllFromBigQuery()
-    # | "debug" >> beam.Map(debug)
 )
 # python3.7 pubsub-to-bq.py \
 # --runner DataflowRunner \
@@ -58,7 +58,7 @@ side_pipeline = (
 # --staging_location gs://de-porto/staging
 # --max_num_workers 1
 
-pipeline = (
+main_pipeline = (
     p
     | "read" >> beam.io.ReadFromPubSub(topic="projects/de-porto/topics/equipment-gps")
     | "bytes to dict" >> beam.Map(lambda x: json.loads(x.decode("utf-8")))
@@ -70,6 +70,10 @@ pipeline = (
         dt.datetime.fromisoformat(src["timestamp"]).timestamp()
     ))
     | "windowing" >> beam.WindowInto(window.FixedWindows(30))
+)
+
+final_pipeline = (
+    main_pipeline
     | "enrich data" >> beam.Map(enrich_payload, equipments=beam.pvalue.AsIter(side_pipeline))
     | "store" >> beam.io.WriteToBigQuery(bq_table)
 )
