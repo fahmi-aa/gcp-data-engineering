@@ -74,9 +74,11 @@ final_pipeline = (
 result = p.run()
 result.wait_until_finish()
 
-# python3.7 pubsub-to-bq.py \
-# --runner DataflowRunner \
-# --region asia-southeast2 \
-# --project de-porto \
-# --temp_location gs://de-porto/temp \
-# --staging_location gs://de-porto/staging
+"""
+python3.7 pubsub-to-bq.py \
+--runner DataflowRunner \
+--region asia-southeast2 \
+--project de-porto \
+--temp_location gs://de-porto/temp \
+--staging_location gs://de-porto/staging
+"""
