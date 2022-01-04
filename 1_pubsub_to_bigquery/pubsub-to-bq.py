@@ -50,13 +50,6 @@ side_pipeline = (
         beam.Map(lambda x:beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
     | beam.io.ReadAllFromBigQuery()
 )
-# python3.7 pubsub-to-bq.py \
-# --runner DataflowRunner \
-# --region asia-southeast2 \
-# --project de-porto \
-# --temp_location gs://de-porto/temp \
-# --staging_location gs://de-porto/staging
-# --max_num_workers 1
 
 main_pipeline = (
     p
@@ -80,3 +73,10 @@ final_pipeline = (
 
 result = p.run()
 result.wait_until_finish()
+
+# python3.7 pubsub-to-bq.py \
+# --runner DataflowRunner \
+# --region asia-southeast2 \
+# --project de-porto \
+# --temp_location gs://de-porto/temp \
+# --staging_location gs://de-porto/staging
