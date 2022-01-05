@@ -3,7 +3,7 @@ import apache_beam as beam
 from apache_beam.transforms import window
 from apache_beam.transforms.periodicsequence import PeriodicImpulse
 import datetime as dt
-from apache_beam.options.pipeline_options import PipelineOptions, GoogleCloudOptions
+from apache_beam.options.pipeline_options import GoogleCloudOptions
 import logging as log
 
 def debug(payload):
@@ -38,7 +38,6 @@ def enrich_payload(payload, equipments):
 
 
 bq_table = "de-porto:de_porto.iot_log"
-# options = PipelineOptions(streaming=True, save_main_session=True, worker_machine_type="n1-standard-1")
 options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name="iot")
 
 p = beam.Pipeline(options=options)
