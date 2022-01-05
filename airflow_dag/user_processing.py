@@ -69,6 +69,8 @@ with DAG("user_processing", schedule_interval="@daily",
         bash_command="""psql postgresql://postgres:postgres@host.docker.internal:5432/airflow-dev -c "\copy users FROM '/tmp/processed_user.csv' delimiter ',' csv" """
     )
 
+    create_table >> is_api_available >> extracting_user >> processing_user >> storing_user
+
 """
 Copy file to docker
 cp -r ./airflow_dag/* ~/Documents/GitHub/dev-env/airflow/dags/
