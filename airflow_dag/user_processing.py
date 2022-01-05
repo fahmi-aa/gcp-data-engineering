@@ -33,7 +33,7 @@ with DAG("user_processing", schedule_interval="@daily",
         task_id="create_table",
         postgres_conn_id="postgres",
         sql='''
-            CREATE TABLE users (
+            CREATE TABLE IF NOT EXISTS users (
                 email VARCHAR(255) NOT NULL,
                 firstname VARCHAR(255) NOT NULL,
                 lastname VARCHAR(255) NOT NULL,
