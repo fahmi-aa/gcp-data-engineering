@@ -1,7 +1,9 @@
 import json
+import uuid
+
 import apache_beam as beam
 from apache_beam.transforms import window
-from apache_beam.transforms.periodicsequence import PeriodicImpulse
+# from apache_beam.transforms.periodicsequence import PeriodicImpulse
 import datetime as dt
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 import logging as log
@@ -15,11 +17,15 @@ def payload_epoch_to_utc(payload):
     return payload
 
 def to_wkt_point(payload):
-    payload["location"] = f'POINT({payload["y"]} {payload["y"]}'
+    payload["location"] = f'POINT({payload["y"]} {payload["x"]})'
     del payload["x"]
     del payload["y"]
 
     return payload
+
+def int_to_date_year(pval):
+    pval["year"] = dt.date(pval["year"], 1, 1)
+    return pval
 
 def enrich_payload(payload, equipments):
     id = payload["id"]
@@ -38,17 +44,29 @@ def enrich_payload(payload, equipments):
 
 
 bq_table = "de-porto:de_porto.iot_log"
-options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name="iot")
+options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name=f"iot-{str(uuid.uuid4())}")
 
 p = beam.Pipeline(options=options)
 
 side_pipeline = (
     p
-    | "periodic" >> PeriodicImpulse(fire_interval=3600, apply_windowing=True)
-    | "map to read request" >>
-        beam.Map(lambda x:beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
-    | beam.io.ReadAllFromBigQuery()
+    | "read side input from bigquery" >> beam.io.ReadFromBigQuery(table="de-porto:de_porto.equipment")
+    | "number to date year" >> beam.Map(int_to_date_year)
+    | "debug" >> beam.Map(debug)
 )
+"""
+periodic_side_pipeline is not working until the time of writing because of ReadAllFromBigQuery bug
+this side pipeline follow documentation on: https://beam.apache.org/releases/pydoc/2.35.0/apache_beam.io.gcp.bigquery.html
+This might be working on future apache beam version (beyond 2.34.0)
+"""
+# periodic_side_pipeline = (
+#     p
+#     | "periodic" >> PeriodicImpulse(fire_interval=3600, apply_windowing=True)
+#     | "map to read request" >>
+#         beam.Map(lambda x: beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
+#     | "number to date year1" >> beam.Map(int_to_date_year)
+#     | beam.io.ReadAllFromBigQuery()
+# )
 
 main_pipeline = (
     p
@@ -66,7 +84,7 @@ main_pipeline = (
 
 final_pipeline = (
     main_pipeline
-    | "enrich data" >> beam.Map(enrich_payload, equipments=beam.pvalue.AsIter(side_pipeline))
+    | "enrich data" >> beam.FlatMap(enrich_payload, equipments=beam.pvalue.AsIter(side_pipeline))
     | "store" >> beam.io.WriteToBigQuery(bq_table)
 )
 
@@ -74,7 +92,7 @@ result = p.run()
 result.wait_until_finish()
 
 """
-python3.7 pubsub-to-bq.py \
+python3 pubsub-to-bq.py \
 --runner DataflowRunner \
 --region asia-southeast2 \
 --project de-porto \
