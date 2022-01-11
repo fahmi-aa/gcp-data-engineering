@@ -2,18 +2,19 @@ from airflow import DAG
 from datetime import datetime
 from airflow.operators.bash import BashOperator
 from airflow.operators.subdag import SubDagOperator
+from example import grouped_dag
 
 default_args = {
     "start_date": datetime(2022, 1, 1)
 }
 
-with DAG('parallel_dag', schedule_interval="@daily", default_args=default_args, catchup=False) as dag:
+with DAG('grouped_dag', schedule_interval="@daily", default_args=default_args, catchup=False) as dag:
     task1 = BashOperator(task_id="task1", bash_command="sleep 3")
-    task2 = BashOperator(task_id="task2", bash_command="sleep 3")
-    task3 = BashOperator(task_id="task3", bash_command="sleep 3")
+    processing = SubDagOperator(task_id="grouping", subdag=grouped_dag('grouped_dag', "grouping", default_args))
+
     task4 = BashOperator(task_id="task4", bash_command="sleep 3")
 
-    task1 >> [task2, task3] >> task4
+    task1 >> processing >> task4
 
 """
 Copy file to docker

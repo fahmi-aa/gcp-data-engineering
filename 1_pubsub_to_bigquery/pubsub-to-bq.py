@@ -29,9 +29,7 @@ def int_to_date_year(pval):
 
 def enrich_payload(payload, equipments):
     id = payload["id"]
-    log.info(equipments)
     for equipment in equipments:
-        log.info(equipment)
         if id == equipment["id"]:
             payload["type"] = equipment["type"]
             payload["brand"] = equipment["brand"]
