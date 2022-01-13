@@ -2,8 +2,8 @@ import json
 import uuid
 
 import apache_beam as beam
-from apache_beam.transforms import window
-# from apache_beam.transforms.periodicsequence import PeriodicImpulse
+from apache_beam.transforms import window, trigger
+from apache_beam.transforms.periodicsequence import PeriodicImpulse
 import datetime as dt
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 import logging as log
@@ -46,25 +46,17 @@ options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name=f"
 
 p = beam.Pipeline(options=options)
 
-side_pipeline = (
+periodic_side_pipeline = (
     p
-    | "read side input from bigquery" >> beam.io.ReadFromBigQuery(table="de-porto:de_porto.equipment")
-    | "number to date year" >> beam.Map(int_to_date_year)
-    | "debug" >> beam.Map(debug)
+    | "periodic" >> PeriodicImpulse(fire_interval=3600, apply_windowing=True)
+    | "ApplyGlobalWindow" >> beam.WindowInto(window.GlobalWindows(),
+                                        trigger=trigger.Repeatedly(trigger.AfterProcessingTime(60)),
+                                        accumulation_mode=trigger.AccumulationMode.DISCARDING)
+    | "map to read request" >>
+        beam.Map(lambda x: beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
+    | beam.io.ReadAllFromBigQuery()
+    | "number to date year1" >> beam.Map(int_to_date_year)
 )
-"""
-periodic_side_pipeline is not working until the time of writing because of ReadAllFromBigQuery bug
-this side pipeline follow documentation on: https://beam.apache.org/releases/pydoc/2.35.0/apache_beam.io.gcp.bigquery.html
-This might be working on future apache beam version (beyond 2.34.0)
-"""
-# periodic_side_pipeline = (
-#     p
-#     | "periodic" >> PeriodicImpulse(fire_interval=3600, apply_windowing=True)
-#     | "map to read request" >>
-#         beam.Map(lambda x: beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
-#     | "number to date year1" >> beam.Map(int_to_date_year)
-#     | beam.io.ReadAllFromBigQuery()
-# )
 
 main_pipeline = (
     p
@@ -82,7 +74,7 @@ main_pipeline = (
 
 final_pipeline = (
     main_pipeline
-    | "enrich data" >> beam.FlatMap(enrich_payload, equipments=beam.pvalue.AsIter(side_pipeline))
+    | "enrich data" >> beam.FlatMap(enrich_payload, equipments=beam.pvalue.AsIter(periodic_side_pipeline))
     | "store" >> beam.io.WriteToBigQuery(bq_table)
 )
 
