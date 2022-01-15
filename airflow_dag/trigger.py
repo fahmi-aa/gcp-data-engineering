@@ -16,7 +16,7 @@ with DAG("trigger_rule", schedule_interval="@daily", default_args={"start_date":
     )
 
     task3 = BashOperator(
-        task_id="task2",
+        task_id="task3",
         bash_command="exit 0",
         do_xcom_push=False,
         trigger_rule='all_failed'
