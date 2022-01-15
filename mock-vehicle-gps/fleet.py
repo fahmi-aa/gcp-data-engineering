@@ -18,10 +18,11 @@ class Fleet:
 
     def send_all(self):
         for vehicle in self.vehicles:
-            time, location = vehicle.get_new_data()
+            time, location, fuel = vehicle.get_new_data()
             payload = Payload(
                 time,
                 vehicle.id,
-                location
+                location,
+                fuel
             )
             self.connector.send(payload)

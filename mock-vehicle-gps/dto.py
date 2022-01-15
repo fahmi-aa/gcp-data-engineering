@@ -25,13 +25,15 @@ class Payload:
     timestamp: dt.datetime
     id: int
     location: Point
+    fuel: float
 
     def to_json(self):
         return {
             "timestamp": int(self.timestamp.timestamp()),
             "id": self.id,
             "x": self.location.x,
-            "y": self.location.y
+            "y": self.location.y,
+            "fuel_level": self.fuel
         }
 
     def __repr__(self) -> str:
