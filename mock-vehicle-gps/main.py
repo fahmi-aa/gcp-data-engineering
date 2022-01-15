@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--equipment_num",
         type=int,
-        default=25,
+        default=21,
         help="Number of equipments that has gps"
     )
     parser.add_argument(
