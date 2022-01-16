@@ -1,5 +1,4 @@
 import json
-import uuid
 
 import apache_beam as beam
 from apache_beam.transforms import window, trigger
@@ -47,7 +46,7 @@ def enrich_payload(payload, equipments):
 
 
 bq_table = "de-porto:de_porto.iot_log"
-options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name=f"iot-{str(uuid.uuid4())}")
+options = GoogleCloudOptions(streaming=True, save_main_session=True)
 
 p = beam.Pipeline(options=options)
 
