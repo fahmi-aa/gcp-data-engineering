@@ -9,7 +9,7 @@ steps:
       - 'asia-southeast2'
   - name: python:3.8.12-bullseye
     entrypoint: pip
-    args: ["install", "-r", "src/dataflow/requirement.txt"]
+    args: ["install", "-r", "src/dataflow/requirement.txt", "--user"]
   - name: python:3.8.12-bullseye
     entrypoint: python
     args:
