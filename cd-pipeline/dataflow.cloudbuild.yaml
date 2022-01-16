@@ -18,6 +18,8 @@ steps:
       - 'DataflowRunner'
       - '--project'
       - 'de-porto'
+      - '--region'
+      - 'asia-southeast2'
       - '--temp_location'
       - 'gs://de-porto/temp'
       - '--staging_location'
