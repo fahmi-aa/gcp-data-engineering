@@ -86,7 +86,7 @@ result = p.run()
 result.wait_until_finish()
 
 """
-python3 iot-pipeline.py \
+python3 src/dataflow/iot-pipeline.py \
 --runner DataflowRunner \
 --region asia-southeast2 \
 --project de-porto \
