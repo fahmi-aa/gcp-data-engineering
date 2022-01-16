@@ -7,7 +7,10 @@ steps:
       - 'iot'
       - '--region'
       - 'asia-southeast2'
-  - name: python
+  - name: python:3.8.12-bullseye
+    entrypoint: pip
+    args: ["install", "-r", "src/dataflow/requirement.txt"]
+  - name: python:3.8.12-bullseye
     entrypoint: python
     args:
       - 'src/dataflow/iot-pipeline.py'
