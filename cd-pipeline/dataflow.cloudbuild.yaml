@@ -11,15 +11,15 @@ steps:
     entrypoint: python
     args:
       - 'src/dataflow/iot-pipeline.py'
-      - 'runner'
+      - '--runner'
       - 'DataflowRunner'
-      - 'project'
+      - '--project'
       - 'de-porto'
-      - 'temp_location'
+      - '--temp_location'
       - 'gs://de-porto/temp'
-      - 'staging_location'
+      - '--staging_location'
       - 'gs://de-porto/staging'
-      - 'template_location'
+      - '--template_location'
       - 'gs://de-porto/dataflow-template/iot-pipeline'
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
