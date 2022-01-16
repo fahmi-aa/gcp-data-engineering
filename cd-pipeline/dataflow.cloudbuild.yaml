@@ -19,6 +19,6 @@ steps:
       - '--gcs-location=gs://de-porto/dataflow-jobs/iot-pipeline.py'
       - '--enable-streaming-engine'
       - '--max-workers=1'
-      - '--num-worksers=1'
+      - '--num-workers=1'
       - '--worker-machine-type=n1-standard-1'
       - '--region=asia-southeast2'
