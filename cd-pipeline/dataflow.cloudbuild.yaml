@@ -8,7 +8,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     args:
       - 'cp'
-      - ''
+      - 'src/dataflow/iot-pipeline.py'
       - 'gs://de-porto/dataflow-jobs/'
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
@@ -16,3 +16,9 @@ steps:
       - 'jobs'
       - 'run'
       - 'iot'
+      - '--gcs-location=gs://de-porto/dataflow-jobs/iot-pipeline.py'
+      - '--enable-streaming-engine'
+      - '--max-workers=1'
+      - '--num-worksers=1'
+      - '--worker-machine-type=n1-standard-1'
+      - '--region=asia-southeast2'
