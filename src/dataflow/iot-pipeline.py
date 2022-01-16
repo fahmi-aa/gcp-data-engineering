@@ -92,4 +92,12 @@ python3 iot-pipeline.py \
 --project de-porto \
 --temp_location gs://de-porto/temp \
 --staging_location gs://de-porto/staging
+
+build Dataflow template
+python3 src/dataflow/iot-pipeline.py \
+--runner DataflowRunner \
+--project de-porto \
+--temp_location gs://de-porto/temp \
+--staging_location gs://de-porto/staging \
+--template_location gs://de-porto/dataflow-template/iot-pipeline
 """
