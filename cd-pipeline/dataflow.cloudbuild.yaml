@@ -1,13 +1,10 @@
 steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
-      - 'dataflow jobs list --filter="name=iot" --status=active --limit=1 --format="value(JOB_ID)"'
-      - '|'
-      - 'gcloud'
       - 'dataflow'
       - 'jobs'
       - 'cancel'
-      - '$0'
+      - '$(gcloud dataflow jobs list --filter="name=iot" --limit=1 --format="value(JOB_ID)")'
       - '--region'
       - 'asia-southeast2'
   - name: python:3.8.12-bullseye
