@@ -40,4 +40,4 @@ steps:
       - 'asia-southeast2'
 
 options:
-  logging: NONE
+  logging: CLOUD_LOGGING_ONLY
