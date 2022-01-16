@@ -5,11 +5,22 @@ steps:
       - 'jobs'
       - 'cancel'
       - 'iot'
-  - name: 'gcr.io/cloud-builders/gsutil'
+      - '--region'
+      - 'asia-southeast2'
+  - name: python
+    entrypoint: python
     args:
-      - 'cp'
       - 'src/dataflow/iot-pipeline.py'
-      - 'gs://de-porto/dataflow-jobs/'
+      - 'runner'
+      - 'DataflowRunner'
+      - 'project'
+      - 'de-porto'
+      - 'temp_location'
+      - 'gs://de-porto/temp'
+      - 'staging_location'
+      - 'gs://de-porto/staging'
+      - 'template_location'
+      - 'gs://de-porto/dataflow-template/iot-pipeline'
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'dataflow'
@@ -17,7 +28,7 @@ steps:
       - 'run'
       - 'iot'
       - '--gcs-location'
-      - 'gs://de-porto/dataflow-jobs/iot-pipeline.py'
+      - 'gs://de-porto/dataflow-template/iot-pipeline'
       - '--enable-streaming-engine'
       - '--max-workers'
       - '1'
@@ -29,4 +40,4 @@ steps:
       - 'asia-southeast2'
 
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: LEGACY
