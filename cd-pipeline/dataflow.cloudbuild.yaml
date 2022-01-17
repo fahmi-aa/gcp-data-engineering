@@ -4,7 +4,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud dataflow jobs cancel $(gcloud dataflow jobs list --filter="name=iot" --status=active --limit=1 --format="value(JOB_ID)") --region asia-southeast2
+        gcloud dataflow jobs cancel $(gcloud dataflow jobs list --filter="name=iot" --status=active --limit=1 --format="value(JOB_ID)" || echo "NONE") --region asia-southeast2
   - name: python:3.8.12-bullseye
     entrypoint: pip
     args: ["install", "-r", "src/dataflow/requirement.txt", "--user"]
