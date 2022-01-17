@@ -1,12 +1,10 @@
 steps:
   - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: bash
     args:
-      - 'dataflow'
-      - 'jobs'
-      - 'cancel'
-      - '$(gcloud dataflow jobs list --filter="name=iot" --status=active --limit=1 --format="value(JOB_ID)")'
-      - '--region'
-      - 'asia-southeast2'
+      - '-c'
+      - |
+        gcloud dataflow jobs cancel $(gcloud dataflow jobs list --filter="name=iot" --status=active --limit=1 --format="value(JOB_ID)") --region asia-southeast2
   - name: python:3.8.12-bullseye
     entrypoint: pip
     args: ["install", "-r", "src/dataflow/requirement.txt", "--user"]
@@ -16,33 +14,23 @@ steps:
       - 'src/dataflow/iot-pipeline.py'
       - '--runner'
       - 'DataflowRunner'
-      - '--project'
-      - 'de-porto'
-      - '--region'
-      - 'asia-southeast2'
-      - '--temp_location'
-      - 'gs://de-porto/temp'
-      - '--staging_location'
-      - 'gs://de-porto/staging'
-      - '--template_location'
-      - 'gs://de-porto/dataflow-template/iot-pipeline'
+      - '--project=de-porto'
+      - '--region=asia-southeast2'
+      - '--temp_location=gs://de-porto/temp'
+      - '--staging_location=gs://de-porto/staging'
+      - '--template_location=gs://de-porto/dataflow-template/iot-pipeline'
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'dataflow'
       - 'jobs'
       - 'run'
       - 'iot'
-      - '--gcs-location'
-      - 'gs://de-porto/dataflow-template/iot-pipeline'
+      - '--gcs-location=gs://de-porto/dataflow-template/iot-pipeline'
       - '--enable-streaming-engine'
-      - '--max-workers'
-      - '1'
-      - '--num-workers'
-      - '1'
-      - '--worker-machine-type'
-      - 'n1-standard-1'
-      - '--region'
-      - 'asia-southeast2'
+      - '--max-workers=1'
+      - '--num-workers=1'
+      - '--worker-machine-type=n1-standard-1'
+      - '--region=asia-southeast2'
 
 options:
   logging: CLOUD_LOGGING_ONLY
