@@ -14,7 +14,7 @@ class Vehicle:
     theft_rate: float
 
     def __init__(self, vehicle_id: int, vehicle_type: str, init_point: Point,
-                 speed_rate: float, init_fuel: float = 100, theft_rate = 0.05) -> None:
+                 speed_rate: float, init_fuel: float = 100, theft_rate=0.025) -> None:
         MID_POINT = Point(756892, 9288051)
         self.id = vehicle_id
         self.type = vehicle_type
