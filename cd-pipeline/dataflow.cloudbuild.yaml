@@ -5,6 +5,12 @@ steps:
       - '-c'
       - |
         source cd-pipeline/dataflow-drain.sh
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        sleep 300
   - name: python:3.8.12-bullseye
     entrypoint: pip
     args: ["install", "-r", "src/dataflow/requirement.txt", "--user"]
