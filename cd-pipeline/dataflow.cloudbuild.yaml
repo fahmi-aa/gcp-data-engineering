@@ -7,6 +7,7 @@ steps:
         source cd-pipeline/dataflow-drain.sh
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: bash
+#    WARNING: DUMB WAYS TO WAIT UNTIL DATAFLOW JOB DRAINED. GONNA IMPLEMENT BETTER ONE WITH AIRFLOW
     args:
       - '-c'
       - |
