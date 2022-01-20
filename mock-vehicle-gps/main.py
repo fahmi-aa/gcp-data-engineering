@@ -7,6 +7,7 @@ from vehicle import Vehicle
 from fleet import Fleet
 from connector import PubSubConnector
 
+
 def run(vehicle_num: int, interval: float, project: str, topic_id: str):
     vehicles: List[Vehicle] = []
     for i in range(vehicle_num):
@@ -19,6 +20,7 @@ def run(vehicle_num: int, interval: float, project: str, topic_id: str):
         print(f"{datetime.now().isoformat()[:-7]}: Data sent")
 
         time.sleep(interval)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
