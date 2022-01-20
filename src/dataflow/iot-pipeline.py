@@ -51,7 +51,14 @@ class FuelDiff(beam.DoFn):
                 yield output
 
 
-def debug(payload):
+def theft_filter(payload):
+    if payload["fuel_diff"] == None:
+        return False
+    else:
+        return payload["fuel_diff"] < -10
+
+
+def logInfo(payload):
     log.info(payload)
     return payload
 
@@ -123,9 +130,9 @@ fuel_theft_pipeline = (
         | "To fuel KV pair" >> beam.Map(lambda x: (x["id"], {"timestamp": x["timestamp"], "location": x["location"], "fuel_level": x["fuel_level"]}))
         | "debug2" >> beam.Map(debug)
         | "Get Fuel Diff" >> beam.ParDo(FuelDiff())
-        | "debug3" >> beam.Map(debug)
-        | "filter theft" >> beam.Filter(lambda x: x["fuel_diff"] > 10)
-        | "store fuel theft data" >> beam.io.WriteToBigQuery("de-porto:de_porto.fuel_theft")
+        | "Log Fuel Diff" >> beam.Map(logInfo)
+        | "Fuel Theft Filter" >> beam.Filter(theft_filter)
+        | "Store Fuel Theft Data" >> beam.io.WriteToBigQuery("de-porto:de_porto.fuel_theft")
 )
 
 store_pipeline = (
