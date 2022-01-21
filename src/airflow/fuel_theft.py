@@ -23,9 +23,11 @@ QUERY = """
       timestamp
 """
 
-with DAG("fuel_theft", schedule_interval="@daily", default_args={"start_date": datetime(2022, 1, 1)}, catchup=False):
+with DAG("fuel_theft", schedule_interval="@daily", default_args={"start_date": datetime(2022, 1, 1)}, catchup=False) as dag:
     task = BigQueryInsertJobOperator(
         task_id="fuel_theft",
+        project_id="de-porto",
+        gcp_conn_id="google_cloud_default",
         configuration={
             "query": {
                 "query": QUERY,
