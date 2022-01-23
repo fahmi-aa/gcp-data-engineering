@@ -6,7 +6,8 @@ steps:
       - '-c'
       - |
         gcloud dataflow jobs list --filter="iot-\d{10}" --status=active --format="value(JOB_ID)" > ./job_id.txt
-  - name: python:3.8.12-bullseye
+  - id: 'install-dependencies'
+    name: python:3.8.12-bullseye
     entrypoint: pip
     args: ["install", "-r", "src/dataflow/requirement.txt", "--user"]
   - id: 'build-dataflow-template'
