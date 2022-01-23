@@ -24,17 +24,18 @@ steps:
       - '--template_location=gs://de-porto/dataflow-template/iot-pipeline'
   - id: 'deploy-from-template'
     name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: bash
     args:
-      - 'dataflow'
-      - 'jobs'
-      - 'run'
-      - 'iot'
-      - '--gcs-location=gs://de-porto/dataflow-template/iot-pipeline'
-      - '--enable-streaming-engine'
-      - '--max-workers=1'
-      - '--num-workers=1'
-      - '--worker-machine-type=n1-standard-1'
-      - '--region=asia-southeast2'
+      - '-c'
+      - |
+        JOB_NAME="iot-$EPOCHSECONDS" && \
+        gcloud dataflow jobs run "$JOB_NAME" \
+          --gcs-location=gs://de-porto/dataflow-template/iot-pipeline
+          --enable-streaming-engine
+          --max-workers=1
+          --num-workers=1
+          --worker-machine-type=n1-standard-1
+          --region=asia-southeast2
   - id: 'drain-existing-job'
     name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: bash
