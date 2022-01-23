@@ -5,7 +5,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud dataflow jobs list --filter="iot-\d{10}" --status=active --limit=1 --format="value(JOB_ID)" > ./job_id.txt
+        gcloud dataflow jobs list --filter="name~iot-\d{10}" --status=active --limit=1 --format="value(JOB_ID)" > ./job_id.txt
   - id: 'install-dependencies'
     name: python:3.8.12-bullseye
     entrypoint: pip
