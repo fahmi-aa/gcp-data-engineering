@@ -28,7 +28,7 @@ steps:
     args:
       - '-c'
       - |
-        JOB_NAME="iot-$(echo $EPOCHSECONDS)" && \
+        JOB_NAME="iot-$(awk 'BEGIN {srand(); print srand()}')" && \
         gcloud dataflow jobs run "${JOB_NAME}" \
           --gcs-location=gs://de-porto/dataflow-template/iot-pipeline
           --enable-streaming-engine
