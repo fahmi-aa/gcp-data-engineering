@@ -1,21 +1,16 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - id: 'get-running-job'
+    name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: bash
     args:
       - '-c'
       - |
-        source cd-pipeline/dataflow-drain.sh
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: bash
-#    WARNING: DUMB WAYS TO WAIT UNTIL DATAFLOW JOB DRAINED. GONNA IMPLEMENT BETTER ONE WITH AIRFLOW
-    args:
-      - '-c'
-      - |
-        sleep 300
+        gcloud dataflow jobs list --filter="iot-\d{10}" --status=active --format="value(JOB_ID)" > ./job_id.txt
   - name: python:3.8.12-bullseye
     entrypoint: pip
     args: ["install", "-r", "src/dataflow/requirement.txt", "--user"]
-  - name: python:3.8.12-bullseye
+  - id: 'build-dataflow-template'
+    name: python:3.8.12-bullseye
     entrypoint: python
     args:
       - 'src/dataflow/iot-pipeline.py'
@@ -26,7 +21,8 @@ steps:
       - '--temp_location=gs://de-porto/temp'
       - '--staging_location=gs://de-porto/staging'
       - '--template_location=gs://de-porto/dataflow-template/iot-pipeline'
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - id: 'deploy-from-template'
+    name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'dataflow'
       - 'jobs'
@@ -38,6 +34,13 @@ steps:
       - '--num-workers=1'
       - '--worker-machine-type=n1-standard-1'
       - '--region=asia-southeast2'
+  - id: 'drain-existing-job'
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        gcloud dataflow jobs drain $(cat ./job_id.txt)
 
 options:
   logging: CLOUD_LOGGING_ONLY
