@@ -42,7 +42,7 @@ steps:
     args:
       - '-c'
       - |
-        JOB_ID=$(cat ./job_id.txt) && gcloud dataflow jobs drain ${JOB_ID:-"anything"}
+        JOB_ID=$(cat ./job_id.txt) && gcloud dataflow jobs drain ${JOB_ID:-"anything"} --region asia-southeast2
 
 options:
   logging: CLOUD_LOGGING_ONLY
