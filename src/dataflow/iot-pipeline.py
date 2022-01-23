@@ -93,7 +93,8 @@ def left_join(payload, equipments):
     yield payload
 
 
-options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name=f"iot-{dt.datetime.now().isoformat()}")
+JOB_NAME = f"iot-{dt.datetime.now().isoformat()[:-7]}"
+options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name=JOB_NAME)
 
 p = beam.Pipeline(options=options)
 
