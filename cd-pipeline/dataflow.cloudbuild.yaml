@@ -40,7 +40,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud dataflow jobs drain $(cat ./job_id.txt)
+        JOB_ID=$(cat ./job_id.txt) && gcloud dataflow jobs drain ${JOB_ID:-"anything"}
 
 options:
   logging: CLOUD_LOGGING_ONLY
