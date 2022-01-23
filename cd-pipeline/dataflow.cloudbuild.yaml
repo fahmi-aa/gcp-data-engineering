@@ -30,11 +30,11 @@ steps:
       - |
         JOB_NAME="iot-$$EPOCHSECONDS" && \
         gcloud dataflow jobs run "$$JOB_NAME" \
-          --gcs-location=gs://de-porto/dataflow-template/iot-pipeline
-          --enable-streaming-engine
-          --max-workers=1
-          --num-workers=1
-          --worker-machine-type=n1-standard-1
+          --gcs-location=gs://de-porto/dataflow-template/iot-pipeline \
+          --enable-streaming-engine \
+          --max-workers=1 \
+          --num-workers=1 \
+          --worker-machine-type=n1-standard-1 \
           --region=asia-southeast2
   - id: 'drain-existing-job'
     name: 'gcr.io/cloud-builders/gcloud'
