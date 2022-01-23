@@ -93,7 +93,7 @@ def left_join(payload, equipments):
     yield payload
 
 
-JOB_NAME = f"iot-{dt.datetime.now().isoformat()[:-7]}"
+JOB_NAME = f"iot-{dt.datetime.now().timestamp()[:10]}"
 options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name=JOB_NAME)
 
 p = beam.Pipeline(options=options)
@@ -142,7 +142,7 @@ store_pipeline = (
 )
 
 result = p.run()
-result.wait_until_finish()
+# result.wait_until_finish()
 
 """
 python3 src/dataflow/iot-pipeline.py \
