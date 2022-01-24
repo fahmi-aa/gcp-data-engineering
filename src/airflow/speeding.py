@@ -7,14 +7,14 @@ QUERY = """
     SELECT MAX(timestamp) max_timestamp FROM `de-porto.de_porto.speeding`
 """
 
-GCP_CONN_ID = "gcp_default"
+GCP_CONN_ID = "google_cloud_default"
 PROJECT_ID = "de-porto"
 DATASET_NAME = "de_porto"
 TEMP_TABLE_NAME = "temp_max_timestamp"
 
 with DAG("speeding", schedule_interval="@daily", default_args={"start_date": datetime(2022, 1, 1)}, catchup=False) as dag:
     task1 = BigQueryInsertJobOperator(
-        task_id="insert-max-timestamp",
+        task_id="insert_max_timestamp",
         gcp_conn_id=GCP_CONN_ID,
         configuration={
             "query": {
@@ -25,7 +25,7 @@ with DAG("speeding", schedule_interval="@daily", default_args={"start_date": dat
     )
 
     task2 = BigQueryGetDataOperator(
-        task_id="get-max-timestamp",
+        task_id="get_max_timestamp",
         gcp_conn_id=GCP_CONN_ID,
         dataset_id='de_porto',
         table_id='temp_max_timestamp',
@@ -34,7 +34,7 @@ with DAG("speeding", schedule_interval="@daily", default_args={"start_date": dat
     )
 
     task3 = BigQueryDeleteTableOperator(
-        task_id="delete-table",
+        task_id="delete_table",
         deletion_dataset_table=f"{PROJECT_ID}.{DATASET_NAME}.{TEMP_TABLE_NAME}"
     )
 
