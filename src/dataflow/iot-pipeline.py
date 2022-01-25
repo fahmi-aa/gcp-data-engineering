@@ -12,6 +12,7 @@ from apache_beam.coders.coders import TupleCoder, FloatCoder
 PROJECT_ID = "de-porto"
 BIGQUERY_DATASET = "de_porto"
 PUBSUB_TOPIC = "equipment-gps"
+JOB_NAME = f"iot-{str(dt.datetime.now().timestamp())[:10]}"
 
 class FuelDiff(beam.DoFn):
     STATE = BagStateSpec("fuel", TupleCoder((FloatCoder(), FloatCoder())))
@@ -96,7 +97,6 @@ def left_join(payload, equipments):
     yield payload
 
 
-JOB_NAME = f"iot-{str(dt.datetime.now().timestamp())[:10]}"
 options = GoogleCloudOptions(streaming=True, save_main_session=True, job_name=JOB_NAME)
 
 p = beam.Pipeline(options=options)
