@@ -15,8 +15,7 @@ MAX_TIMESTAMP_QUERY = """
 """
 
 
-def create_speeding_query(timestamp):
-    return f"""
+SPEEDING_QUERY = """
         INSERT INTO `de-porto.de_porto.speeding` WITH
           speed_table AS (
           SELECT
@@ -30,7 +29,7 @@ def create_speeding_query(timestamp):
           FROM
             `de-porto.de_porto.iot_log`
           WHERE
-            timestamp > '{timestamp}'
+            timestamp > '{{ task_instance.xcom_pull(task_ids='get_max_timestamp', key='return_value')[0][0] }}'
           ORDER BY
             timestamp DESC )
         SELECT
@@ -80,8 +79,8 @@ with DAG("speeding", schedule_interval="@daily", default_args={"start_date": dat
         gcp_conn_id=GCP_CONN_ID,
         configuration={
             "query": {
-                "query": create_speeding_query(get_max_timestamp.output[0][0]),
-                "useLegacySql": False,
+                "query": SPEEDING_QUERY,
+                "useLegacySql": False
             }
         }
     )
