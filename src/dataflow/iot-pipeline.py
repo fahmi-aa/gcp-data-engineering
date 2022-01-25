@@ -9,6 +9,9 @@ from apache_beam.options.pipeline_options import GoogleCloudOptions
 from apache_beam.transforms.userstate import BagStateSpec
 from apache_beam.coders.coders import TupleCoder, FloatCoder
 
+PROJECT_ID = "de-porto"
+BIGQUERY_DATASET = "de_porto"
+PUBSUB_TOPIC = "equipment-gps"
 
 class FuelDiff(beam.DoFn):
     STATE = BagStateSpec("fuel", TupleCoder((FloatCoder(), FloatCoder())))
@@ -105,14 +108,14 @@ periodic_side_pipeline = (
                                                  trigger=trigger.Repeatedly(trigger.AfterProcessingTime(60)),
                                                  accumulation_mode=trigger.AccumulationMode.DISCARDING)
         | "Bigquery Request" >>
-            beam.Map(lambda x: beam.io.gcp.bigquery.ReadFromBigQueryRequest(table="de-porto:de_porto.equipment"))
+            beam.Map(lambda x: beam.io.gcp.bigquery.ReadFromBigQueryRequest(table=f"{PROJECT_ID}:{BIGQUERY_DATASET}.equipment"))
         | beam.io.ReadAllFromBigQuery()
         | "Year Number to Date" >> beam.Map(int_to_date_year)
 )
 
 main_pipeline = (
         p
-        | "Read From Pubsub" >> beam.io.ReadFromPubSub(topic="projects/de-porto/topics/equipment-gps")
+        | "Read From Pubsub" >> beam.io.ReadFromPubSub(topic=f"projects/{PROJECT_ID}/topics/{PUBSUB_TOPIC}")
         | "Bytes to Dict" >> beam.Map(lambda x: json.loads(x.decode("utf-8")))
         | "To WKT Point" >> beam.Map(to_wkt_point)
         | "To Bigquery Row" >> beam.Map(payload_epoch_to_utc)
@@ -131,18 +134,17 @@ fuel_theft_pipeline = (
         | "Get Fuel Diff" >> beam.ParDo(FuelDiff())
         | "Log Fuel Diff" >> beam.Map(logInfo)
         | "Fuel Theft Filter" >> beam.Filter(theft_filter)
-        | "Store Fuel Theft Data" >> beam.io.WriteToBigQuery("de-porto:de_porto.fuel_theft")
+        | "Store Fuel Theft Data" >> beam.io.WriteToBigQuery(f"{PROJECT_ID}:{BIGQUERY_DATASET}.fuel_theft")
 )
 
 store_pipeline = (
         main_pipeline
         | "Side Input Windowing" >> beam.WindowInto(window.FixedWindows(30))
         | "Left Join" >> beam.FlatMap(left_join, equipments=beam.pvalue.AsIter(periodic_side_pipeline))
-        | "Store IoT Data" >> beam.io.WriteToBigQuery("de-porto:de_porto.iot_log")
+        | "Store IoT Data" >> beam.io.WriteToBigQuery(f"{PROJECT_ID}:{BIGQUERY_DATASET}.iot_log")
 )
 
 result = p.run()
-# result.wait_until_finish()
 
 """
 python3 src/dataflow/iot-pipeline.py \
