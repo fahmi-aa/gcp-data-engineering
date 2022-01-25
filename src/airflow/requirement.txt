@@ -1,0 +1,2 @@
+apache-airflow[postgres,google]==2.2.3
+apache-airflow-providers-google==6.3.0
