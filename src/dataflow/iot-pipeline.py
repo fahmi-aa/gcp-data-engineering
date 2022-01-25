@@ -119,7 +119,6 @@ main_pipeline = (
         | "Bytes to Dict" >> beam.Map(lambda x: json.loads(x.decode("utf-8")))
         | "To WKT Point" >> beam.Map(to_wkt_point)
         | "To Bigquery Row" >> beam.Map(payload_epoch_to_utc)
-        | "Log Bigquery Row" >> beam.Map(logInfo)
         | "Apply Watermark" >> beam.Map(lambda src: window.TimestampedValue(
             src,
             dt.datetime.fromisoformat(src["timestamp"]).timestamp()
@@ -130,9 +129,7 @@ fuel_theft_pipeline = (
         main_pipeline
         | "To Fuel Location KV" >> beam.Map(
             lambda x: (x["id"], {"timestamp": x["timestamp"], "location": x["location"], "fuel_level": x["fuel_level"]}))
-        | "Log KV Pair" >> beam.Map(logInfo)
         | "Get Fuel Diff" >> beam.ParDo(FuelDiff())
-        | "Log Fuel Diff" >> beam.Map(logInfo)
         | "Fuel Theft Filter" >> beam.Filter(theft_filter)
         | "Store Fuel Theft Data" >> beam.io.WriteToBigQuery(f"{PROJECT_ID}:{BIGQUERY_DATASET}.fuel_theft")
 )
