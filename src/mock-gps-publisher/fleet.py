@@ -1,4 +1,3 @@
-import datetime as dt
 from typing import List
 from connector import Connector
 from dto import Payload
