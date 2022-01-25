@@ -34,9 +34,14 @@ There are three thing that Dataflow do in this project:
 2. Detect fuel theft by using stateful `DoFn`
 3. Sink data to BigQuery
 
-The code in [iot-pipeline.py](src/dataflow/iot-pipeline.py) will result this pipeline in Dataflow:
+The code in [iot-pipeline.py](src/dataflow/iot-pipeline.py) will do all the three things I mentioned.
+And the result the code is this pipeline in Dataflow:
 ![image 1](assets/dataflow-pipeline.png)
 
-The pipeline above will do three things I mentioned above.
+To deploy this pipeline automatically, I used Google Cloud Build.
+You can see the code here [dataflow.cloudbuild.yaml](cd-pipeline/dataflow.cloudbuild.yaml)
 
 ### Airflow
+Airflow in this project only has one DAG, to calculate heavy equipment speeding.
+the code in [speeding.py](src/airflow/speeding.py) will produce this pipeline
+![image 2](assets/airflow-pipeline.png)
