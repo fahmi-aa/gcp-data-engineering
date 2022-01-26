@@ -37,10 +37,24 @@ There are three thing that Dataflow do in this project:
 The code in [iot-pipeline.py](src/dataflow/iot-pipeline.py) will do all the three things I mentioned.
 And the result the code is this pipeline in Dataflow:
 
-![image 1](assets/dataflow-pipeline.png)
+![dataflow](assets/dataflow-pipeline.png)
 
-To deploy this pipeline automatically, I used Google Cloud Build.
-You can see the code here [dataflow.cloudbuild.yaml](cd-pipeline/dataflow.cloudbuild.yaml)
+If you want to deploy this pipeline to Dataflow please use this command
+
+### Cloud Build
+
+To deploy this pipeline automatically, I used Google Cloud Build for continuous delivery.
+You can see the code here [dataflow.cloudbuild.yaml](cd-pipeline/dataflow.cloudbuild.yaml).
+The code will produce pipeline as shown in image below:
+
+![cloud build](assets/cloud-build.png)
+
+The continuous delivery pipeline above will do:
+1. get existing running Dataflow pipeline
+2. installing Dataflow pipeline dependencies
+3. building Dataflow template and store in Google Cloud Storage
+4. deploy Dataflow pipeline based on template built in previous step
+5. drain existing Dataflow pipeline
 
 ### Airflow
 Airflow in this project only has one DAG, to calculate heavy equipment speeding.
