@@ -71,8 +71,12 @@ The Dataflow pipeline will save the transformed payload to table `iot_log` for f
 ### Fuel theft
 The other output of Dataflow pipeline is fuel theft detection.
 All sudden drop on fuel level data will be saved to table `fuel_theft`.
+The difference in fuel level at given time can be seen in `fuel_diff` column.
 ![fuel_theft](assets/fuel_theft-table.png)
 
 ### Speeding
 All equipment activity data that's stored in `iot_log` table will be analyzed for speeding detection.
 This possible by calculating the distance of point and time difference between two payload.
+The value of speed at given time can be seen in `speed` column
+
+![speeding](assets/speeding-table.png)
