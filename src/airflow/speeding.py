@@ -7,13 +7,12 @@ GCP_CONN_ID = "google_cloud_default"
 PROJECT_ID = "de-porto"
 DATASET_NAME = "de_porto"
 TEMP_TABLE_NAME = "temp_max_timestamp"
-SPEEDING_TABLE_ID = "de-porto.de_porto.speeding"
+SPEEDING_TABLE_ID = f"{PROJECT_ID}.{DATASET_NAME}.speeding"
 
 MAX_TIMESTAMP_QUERY = """
     INSERT INTO `de-porto.de_porto.temp_max_timestamp`
     SELECT MAX(timestamp) max_timestamp FROM `de-porto.de_porto.speeding`
 """
-
 
 SPEEDING_QUERY = """
         INSERT INTO `de-porto.de_porto.speeding` WITH
@@ -39,7 +38,6 @@ SPEEDING_QUERY = """
         WHERE
           speed > 40
     """
-
 
 with DAG("speeding", schedule_interval="@daily", default_args={"start_date": datetime(2022, 1, 1)}, catchup=False) as dag:
     create_temp_table = BigQueryCreateEmptyTableOperator(
