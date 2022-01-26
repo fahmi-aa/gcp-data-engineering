@@ -13,6 +13,9 @@ PROJECT_ID = "de-porto"
 BIGQUERY_DATASET = "de_porto"
 PUBSUB_TOPIC = "equipment-gps"
 JOB_NAME = f"iot-{str(dt.datetime.now().timestamp())[:10]}"
+SIDE_INPUT_TABLE = "equipment"
+FUEL_THEFT_TABLE = "fuel_theft"
+IOT_LOG_TABLE = "iot_log"
 
 class FuelDiff(beam.DoFn):
     STATE = BagStateSpec("fuel", TupleCoder((FloatCoder(), FloatCoder())))
@@ -108,7 +111,7 @@ periodic_side_pipeline = (
                                                  trigger=trigger.Repeatedly(trigger.AfterProcessingTime(60)),
                                                  accumulation_mode=trigger.AccumulationMode.DISCARDING)
         | "Bigquery Request" >>
-            beam.Map(lambda x: beam.io.gcp.bigquery.ReadFromBigQueryRequest(table=f"{PROJECT_ID}:{BIGQUERY_DATASET}.equipment"))
+            beam.Map(lambda x: beam.io.gcp.bigquery.ReadFromBigQueryRequest(table=f"{PROJECT_ID}:{BIGQUERY_DATASET}.{SIDE_INPUT_TABLE}"))
         | beam.io.ReadAllFromBigQuery()
         | "Year Number to Date" >> beam.Map(int_to_date_year)
 )
@@ -131,14 +134,14 @@ fuel_theft_pipeline = (
             lambda x: (x["id"], {"timestamp": x["timestamp"], "location": x["location"], "fuel_level": x["fuel_level"]}))
         | "Get Fuel Diff" >> beam.ParDo(FuelDiff())
         | "Fuel Theft Filter" >> beam.Filter(theft_filter)
-        | "Store Fuel Theft Data" >> beam.io.WriteToBigQuery(f"{PROJECT_ID}:{BIGQUERY_DATASET}.fuel_theft")
+        | "Store Fuel Theft Data" >> beam.io.WriteToBigQuery(f"{PROJECT_ID}:{BIGQUERY_DATASET}.{FUEL_THEFT_TABLE}")
 )
 
 store_pipeline = (
         main_pipeline
         | "Side Input Windowing" >> beam.WindowInto(window.FixedWindows(30))
         | "Left Join" >> beam.FlatMap(left_join, equipments=beam.pvalue.AsIter(periodic_side_pipeline))
-        | "Store IoT Data" >> beam.io.WriteToBigQuery(f"{PROJECT_ID}:{BIGQUERY_DATASET}.iot_log")
+        | "Store IoT Data" >> beam.io.WriteToBigQuery(f"{PROJECT_ID}:{BIGQUERY_DATASET}.{IOT_LOG_TABLE}")
 )
 
 result = p.run()
