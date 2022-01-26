@@ -17,7 +17,8 @@ Tech stacks I used in this project are:
 ### Mock GPS Publisher
 Since it's impossible for me to buy millions dollar worth of heavy equipment for this project,
 so I decided to built mock. This mock will send mock data to Google Cloud PubSub with specified topic.
-Example of the payload of this mock:
+To see how I build mock for this data see this [directory](src/mock-gps-publisher).
+Example of mock payload published:
 ```json
 {
     "timestamp": 1643119127,
